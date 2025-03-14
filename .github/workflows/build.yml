@@ -1,0 +1,37 @@
+name: Build Windows Cleaner
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: Build EXE
+      run: |
+        build.bat
+        
+    - name: Upload EXE as Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: WindowsCCleaner
+        path: WindowsCCleaner.exe
+        
+    - name: Upload to Release
+      if: github.event_name == 'release'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          WindowsCCleaner.exe
+          clean.bat
+          README.md
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
