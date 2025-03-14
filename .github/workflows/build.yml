@@ -11,27 +11,31 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: write
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v4
       
     - name: Build EXE
+      shell: cmd
       run: |
         build.bat
         
-    - name: Upload EXE as Artifact
-      uses: actions/upload-artifact@v3
+    - name: Upload artifact
+      if: success()
+      uses: actions/upload-artifact@v4
       with:
         name: WindowsCCleaner
         path: WindowsCCleaner.exe
+        retention-days: 5
         
     - name: Upload to Release
       if: github.event_name == 'release'
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: |
           WindowsCCleaner.exe
           clean.bat
-          README.md
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          README.md 
